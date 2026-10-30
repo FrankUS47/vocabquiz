@@ -3,6 +3,7 @@ VOCAB_SETS.push({
   id: "junior",                 // 題庫代號（不可與其他題庫重複）
   name: "國中單字",              // 選單顯示的名稱
   groupLabel: "課",              // 群組的叫法：類別 / 課 / 單元 ...
+  // pool: true,                // 選填：true＝整份題庫當一個清單，隨機抽、不重複，抽完結束（不顯示類別選擇）
   // byGroup: true,             // 選填：true＝一頁出一整個群組（適合相似字題庫）
   groups: [
     { name: "第1課", items: [
