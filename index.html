@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>單字配對測驗</title>
+<title>英文單字配對測驗</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--tx:#1f2430;--sub:#6b7280;--bd:#d5d9e3;--pri:#3b6fe0;--ok:#1f9d55;--no:#d93a3a;--sel:#fff3c4;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -22,6 +22,9 @@ select,button,textarea{font:inherit;color:var(--tx);background:var(--card);borde
 button{cursor:pointer}button.pri{background:var(--pri);color:#fff;border-color:var(--pri);padding:8px 22px;font-weight:600}
 button.sm{padding:3px 10px;font-size:13px}
 .hide{display:none!important}
+.prow2{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 6px;border-bottom:1px solid var(--bd);align-items:center}
+.prow2.hp{grid-template-columns:1fr 72px 1fr}
+.prow2 .a{font-weight:700;font-size:17px;word-break:break-word}.prow2 .c{color:var(--sub);text-align:center;font-size:14px}.prow2 .b{font-size:16px}
 .pw{display:flex;flex-direction:column;gap:6px}
 .prow{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;border:2px dashed var(--bd);border-radius:10px;padding:4px}
 .prow.over{border-color:var(--pri);background:var(--sel)}.prow.ok{border:2px solid var(--ok)}.prow.no{border:2px solid var(--no)}
@@ -75,6 +78,8 @@ textarea{width:100%;min-height:110px}
    <label>方式 <select id="mode"><option value="e2z">英翻中</option><option value="z2e">中翻英</option><option value="pos">詞性測驗</option></select></label>
    <label>發音 <select id="acc"><option value="en-US">美式</option><option value="en-GB">英式</option></select></label>
    <button class="pri" id="start">開始測試</button>
+   <label>練習順序 <select id="pord"><option value="seq">依序</option><option value="rnd">隨機</option></select></label>
+   <button id="prac" style="padding:8px 18px;font-weight:600">練習（不計時、不測驗）</button>
   </div>
   <p class="hint" id="msg"></p>
  </div>
@@ -96,6 +101,14 @@ textarea{width:100%;min-height:110px}
  </div>
 </div>
 
+<div id="practice" class="hide">
+ <div class="panel">
+  <div class="bar"><span id="pprog"></span><span><button class="sm" id="pprev">◀ 上一頁</button> <button class="sm" id="pnext">下一頁 ▶</button> <button class="sm" id="pback">回設定</button></span></div>
+  <div id="pitems"></div>
+  <div class="row" style="justify-content:center"><button id="pprev2">◀ 上一頁</button><button class="pri" id="pnext2">下一頁 ▶</button></div>
+ </div>
+</div>
+
 <div id="result" class="hide">
  <div class="panel">
   <h2 style="margin-top:0">測驗結果</h2>
@@ -112,7 +125,7 @@ textarea{width:100%;min-height:110px}
 <script>
 const $=id=>document.getElementById(id);
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const show=id=>['setup','quiz','result'].forEach(x=>$(x).classList.toggle('hide',x!==id));
+const show=id=>['setup','quiz','result','practice'].forEach(x=>$(x).classList.toggle('hide',x!==id));
 const KIND={word:'單字',phrase:'片語'};
 let SETS=[],SET=null;
 // 單字統一成 [英文,中文,詞性,相似字,題型,群組名]
@@ -292,6 +305,39 @@ $('pok').onclick=()=>{
  const gen=asked,wrong=log.slice(-round.length).some(x=>!x.ok);
  setTimeout(()=>{if(!$('quiz').classList.contains('hide')&&gen===asked&&posMode)nextPosRound()},wrong?3500:2000)};
 $('stop').onclick=finish;
+// ===== 練習模式（不計時、不測驗）=====
+let PP=[],pg=0,zFront=false;
+$('prac').onclick=()=>{
+ if(!SET)return;
+ const mode=$('mode').value,gs=[...document.querySelectorAll('#cats input:checked')].map(c=>+c.value),k=$('kind').value,p=$('pos').value;
+ const sg=SET.byGroup?SET.G:SET.G.filter((g,i)=>gs.includes(i)),fl=w=>(!k||w[4]===k)&&(!p||w[2].split('/').includes(p));
+ const rnd=$('pord').value==='rnd';zFront=mode==='z2e';
+ if(SET.byGroup){
+  PP=sg.map(g=>g.items.filter(fl)).filter(a=>a.length>=2);
+  if(rnd)PP=shuf(PP);
+  const lim=+$('gn').value;if(lim)PP=PP.slice(0,lim);
+ }else{
+  let ws=sg.flatMap(g=>g.items).filter(fl);
+  if(mode==='pos')ws=ws.filter(w=>w[2]);
+  if(rnd)ws=shuf(ws);
+  const per=mode==='pos'?5:+$('n').value;PP=[];
+  for(let i=0;i<ws.length;i+=per)PP.push(ws.slice(i,i+per));
+ }
+ if(!PP.length){$('msg').textContent='沒有符合條件的單字，請調整選擇。';return}
+ pg=0;show('practice');drawPrac()};
+function drawPrac(){
+ const it=PP[pg],hp=it.some(w=>w[2]);
+ $('pprog').textContent='練習 · 第 '+(pg+1)+' / '+PP.length+' '+(SET.byGroup?'組':'頁');
+ const en=(w,i)=>`<div class="a">${w[0]}<button class="spk" data-pi="${i}" title="發音">🔊</button></div>`,zh=w=>`<div class="b">${w[1]}</div>`;
+ $('pitems').innerHTML=it.map((w,i)=>`<div class="prow2${hp?' hp':''}">${zFront?zh(w):en(w,i)}${hp?`<div class="c">${w[2]||''}</div>`:''}${zFront?en(w,i):zh(w)}</div>`).join('');
+ ['pprev','pprev2'].forEach(x=>$(x).disabled=pg===0);
+ ['pnext','pnext2'].forEach(x=>{$(x).disabled=pg>=PP.length-1});
+ window.scrollTo(0,0)}
+const pgo=d=>{if($('practice').classList.contains('hide'))return;const n=pg+d;if(n>=0&&n<PP.length){pg=n;drawPrac()}};
+['pprev','pprev2'].forEach(x=>$(x).onclick=()=>pgo(-1));['pnext','pnext2'].forEach(x=>$(x).onclick=()=>pgo(1));
+$('pback').onclick=()=>show('setup');
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')pgo(1);if(e.key==='ArrowLeft')pgo(-1)});
+document.addEventListener('click',e=>{const b=e.target.closest('.spk[data-pi]');if(b&&!$('practice').classList.contains('hide'))speak(PP[pg][+b.dataset.pi][0])});
 function finish(){
  if(tm){clearInterval(tm);tm=null}
  if($('result').classList.contains('hide')===false)return;
