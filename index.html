@@ -22,6 +22,15 @@ select,button,textarea{font:inherit;color:var(--tx);background:var(--card);borde
 button{cursor:pointer}button.pri{background:var(--pri);color:#fff;border-color:var(--pri);padding:8px 22px;font-weight:600}
 button.sm{padding:3px 10px;font-size:13px}
 .hide{display:none!important}
+.mq{font-size:18px;line-height:1.7;white-space:pre-wrap;margin:10px 0}
+.mopt{display:block;width:100%;text-align:left;padding:12px;margin:6px 0;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);cursor:pointer;font-size:16px}
+.mopt.ok{border:2px solid var(--ok);background:rgba(31,157,85,.18)}.mopt.no{border:2px solid var(--no);background:rgba(217,58,58,.18)}
+.mopt:disabled{opacity:1;cursor:default}
+.mexp{white-space:pre-wrap;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:8px;font-size:15px;line-height:1.7}
+.mo{padding:4px 8px;border-radius:6px}.mo.ok{background:rgba(31,157,85,.18)}.mo.no{background:rgba(217,58,58,.18)}
+.mres{border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px}
+.mbadge{font-size:13px;font-weight:700;margin-right:8px}.mbadge.ok{color:var(--ok)}.mbadge.no{color:var(--no)}
+.info{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:13px;color:var(--sub);margin:0 0 10px;word-break:break-word}
 .lset{display:flex;flex-wrap:wrap;gap:10px 16px;margin-bottom:8px}
 .lwrap{display:grid;grid-template-columns:1fr 1.3fr;gap:16px;align-items:start}
 @media(max-width:640px){.lwrap{grid-template-columns:1fr}}
@@ -76,8 +85,10 @@ textarea{width:100%;min-height:110px}
 </head>
 <body>
 <div class="wrap">
-<div class="bar"><h1 style="margin:4px 0 12px">📘 單字配對測驗</h1><button id="home" class="hide">🏠 回首頁</button></div>
+<div class="bar"><h1 style="margin:4px 0 12px">📘 英文學習測驗</h1><button id="home" class="hide">🏠 回首頁</button></div>
 <div id="err" class="panel hide" style="color:var(--no);border-color:var(--no)"></div>
+
+<div id="tabs" class="row" style="margin:0 0 12px"><button class="pri" id="tabV">📘 單字測驗</button><button id="tabM">📝 選擇題測驗</button></div>
 
 <div id="setup">
  <div class="panel">
@@ -128,8 +139,50 @@ quiet|安靜的|adj.
  </div>
 </div>
 
+<div id="mcqSetup" class="hide">
+ <div class="panel">
+  <div class="row" style="margin-top:0"><label>題庫 <select id="mset"></select></label></div>
+  <div id="mfilters"></div>
+  <div class="row">
+   <label>測驗題數 <select id="mqc"><option value="10">10 題</option><option value="20">20 題</option><option value="30">30 題</option><option value="50">50 題</option><option value="all">全部</option></select></label>
+   <label>考試時間 <select id="mtotal"><option value="0">不限時間</option><option value="1">1 分鐘</option><option value="2">2 分鐘</option><option value="3">3 分鐘</option><option value="4">4 分鐘</option><option value="5">5 分鐘</option><option value="6">6 分鐘</option><option value="7">7 分鐘</option><option value="8">8 分鐘</option><option value="9">9 分鐘</option><option value="10">10 分鐘</option><option value="11">11 分鐘</option><option value="12">12 分鐘</option><option value="13">13 分鐘</option><option value="14">14 分鐘</option><option value="15">15 分鐘</option><option value="16">16 分鐘</option><option value="17">17 分鐘</option><option value="18">18 分鐘</option><option value="19">19 分鐘</option><option value="20">20 分鐘</option><option value="21">21 分鐘</option><option value="22">22 分鐘</option><option value="23">23 分鐘</option><option value="24">24 分鐘</option><option value="25">25 分鐘</option><option value="26">26 分鐘</option><option value="27">27 分鐘</option><option value="28">28 分鐘</option><option value="29">29 分鐘</option><option value="30">30 分鐘</option><option value="31">31 分鐘</option><option value="32">32 分鐘</option><option value="33">33 分鐘</option><option value="34">34 分鐘</option><option value="35">35 分鐘</option><option value="36">36 分鐘</option><option value="37">37 分鐘</option><option value="38">38 分鐘</option><option value="39">39 分鐘</option><option value="40">40 分鐘</option><option value="41">41 分鐘</option><option value="42">42 分鐘</option><option value="43">43 分鐘</option><option value="44">44 分鐘</option><option value="45">45 分鐘</option><option value="46">46 分鐘</option><option value="47">47 分鐘</option><option value="48">48 分鐘</option><option value="49">49 分鐘</option><option value="50">50 分鐘</option><option value="51">51 分鐘</option><option value="52">52 分鐘</option><option value="53">53 分鐘</option><option value="54">54 分鐘</option><option value="55">55 分鐘</option><option value="56">56 分鐘</option><option value="57">57 分鐘</option><option value="58">58 分鐘</option><option value="59">59 分鐘</option><option value="60">60 分鐘</option></select></label>
+   <label>每題時間 <select id="mtime"><option value="0">不限（手動按下一題）</option><option value="5">5 秒（時間到自動下一題）</option><option value="10">10 秒（時間到自動下一題）</option><option value="15">15 秒（時間到自動下一題）</option><option value="20">20 秒（時間到自動下一題）</option><option value="30">30 秒（時間到自動下一題）</option><option value="60">60 秒（時間到自動下一題）</option></select></label>
+   <button class="pri" id="mstart">開始測驗</button>
+  </div>
+  <p class="hint">題數超過範圍內的題目數時，會重複出題。「詳解」按鈕要按了才會顯示題目翻譯與解析。</p>
+  <p class="hint" id="mmsg"></p>
+ </div>
+</div>
+
+<div id="mcqQuiz" class="hide">
+ <div class="panel">
+  <div class="info" id="minfo"></div>
+  <div class="bar"><span id="mprog"></span><span style="font-size:15px">總時間 <b id="mtotalT" style="font-variant-numeric:tabular-nums"></b></span><span id="mtimer" style="font-size:20px;font-variant-numeric:tabular-nums"></span><button class="sm" id="mstop">結束測驗</button></div>
+  <div class="hint" id="mref"></div>
+  <div class="mq" id="mq"></div>
+  <div id="mopts"></div>
+  <div id="mfb" style="font-weight:700;min-height:24px;margin-top:6px"></div>
+  <div class="row" style="margin-top:6px"><button id="mexpBtn">📖 詳解</button><button class="pri" id="mnext">下一題 ▶</button><span class="hint" id="mauto"></span></div>
+  <div class="mexp hide" id="mexp"></div>
+ </div>
+</div>
+
+<div id="mcqResult" class="hide">
+ <div class="panel">
+  <h2 style="margin-top:0">選擇題測驗結果</h2>
+  <div class="info" id="mrinfo"></div>
+  <div class="stats" id="mstats"></div>
+ </div>
+ <div class="panel">
+  <div class="bar"><span>每題結果</span><label style="font-weight:400"><input type="checkbox" id="monlyW"> 只看錯題</label></div>
+  <div id="mlist"></div>
+  <div class="row"><button class="pri" id="magain">再測一次</button><button id="mwrongBtn" class="hide">只測錯的題目</button><button id="mback">回設定</button></div>
+ </div>
+</div>
+
 <div id="quiz" class="hide">
  <div class="panel">
+  <div class="info" id="qinfo"></div>
   <div class="bar"><span id="prog"></span><span id="timer">00:00</span><button class="sm" id="stop">結束測驗</button></div>
   <p class="hint" id="qhint"></p>
   <div class="hint" id="memmsg" style="font-weight:700;font-size:15px"></div>
@@ -166,6 +219,7 @@ quiet|安靜的|adj.
 
 <div id="practice" class="hide">
  <div class="panel">
+  <div class="info" id="pinfo"></div>
   <div class="bar"><span id="pprog"></span><span><button class="sm" id="pprev">◀ 上一頁</button> <button class="sm" id="pnext">下一頁 ▶</button> <button class="sm" id="pback">回設定</button></span></div>
   <div id="pitems"></div>
   <div class="row" style="justify-content:center"><button id="pprev2">◀ 上一頁</button><button class="pri" id="pnext2">下一頁 ▶</button></div>
@@ -175,6 +229,7 @@ quiet|安靜的|adj.
 <div id="result" class="hide">
  <div class="panel">
   <h2 style="margin-top:0">測驗結果</h2>
+  <div class="info" id="rinfo"></div>
   <div class="stats" id="stats"></div>
  </div>
  <div class="panel">
@@ -188,7 +243,11 @@ quiet|安靜的|adj.
 <script>
 const $=id=>document.getElementById(id);
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const show=id=>{['setup','quiz','result','practice'].forEach(x=>$(x).classList.toggle('hide',x!==id));$('home').classList.toggle('hide',id==='setup')};
+var MCQ_SETS=[];let homeTab='v';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const show=id=>{['setup','quiz','result','practice','mcqSetup','mcqQuiz','mcqResult'].forEach(x=>$(x).classList.toggle('hide',x!==id));
+ const isSetup=id==='setup'||id==='mcqSetup';$('home').classList.toggle('hide',isSetup);$('tabs').classList.toggle('hide',!isSetup);
+ $('tabV').classList.toggle('pri',homeTab==='v');$('tabM').classList.toggle('pri',homeTab==='mcq')};
 const KIND={word:'單字',phrase:'片語'};
 let SETS=[],SET=null;
 // 單字統一成 [英文,中文,詞性,相似字,題型,群組名]
@@ -205,10 +264,14 @@ function loadAll(){
  loadJS(['data/index.js','index.js'],()=>{
   const listed=typeof VOCAB_FILES!=='undefined'?VOCAB_FILES:[];
   const files=[...listed,...['similar.js','toeic-review.js','law.js'].filter(x=>!listed.includes(x))];let i=0;
-  const next=()=>{if(i>=files.length){init();return}
+  const next=()=>{if(i>=files.length){loadMcq(init);return}
    const f=files[i++];loadJS(['data/'+f,f],next,()=>{if(listed.includes(f))err('找不到題庫檔 '+f+'。');next()})};
   next()},()=>{err('找不到 index.js。請把 data 資料夾（內含 index.js、toeic.js…）放在 vocab-quiz.html 旁邊，或把這些 .js 檔直接放在同一個資料夾。')})}
+function loadMcq(cb){
+ const fs=typeof MCQ_FILES!=='undefined'?MCQ_FILES:['mcq-junior.js','mcq-senior.js','mcq-toeic.js'];let i=0;
+ const nx=()=>{if(i>=fs.length){cb();return}const f=fs[i++];loadJS(['data/'+f,f],nx,nx)};nx()}
 function init(){
+ initMcq();
  SETS=typeof VOCAB_SETS!=='undefined'?VOCAB_SETS:[];
  if(!SETS.length){err('沒有載入任何題庫，請檢查 index.js 與各題庫檔。');return}
  $('setSel').innerHTML=SETS.map((s,i)=>`<option value="${i}">${s.name}</option>`).join('');
@@ -236,12 +299,21 @@ $('all').onclick=()=>document.querySelectorAll('#cats input').forEach(c=>c.check
 $('none').onclick=()=>document.querySelectorAll('#cats input').forEach(c=>c.checked=false);
 
 let T=0,B=1,words,queue,round,where,sel,locked,left,tm,log,perPage,asked;
+function infoLine(modeText,o){
+ const lab=SET.groupLabel||'類別',gs=o.gs||[],names=SET.G.filter((g,i)=>gs.includes(i)).map(g=>g.name);
+ let key=lab,scope;
+ if(o.rt){key='範圍';scope='上次答錯的單字（'+o.n+' 個）'}
+ else if(o.byg){key='範圍';scope='每組為一頁'+(o.groups?'，共 '+o.groups+' 組':'')}
+ else if(SET.pool){key='範圍';scope='整份清單'}
+ else scope=names.length===SET.G.length?'全部（'+names.length+'）':names.length<=4?names.join('、'):names.slice(0,3).join('、')+' 等 '+names.length+' 個';
+ const k=$('kind').value,p=$('pos').value;
+ return ['題庫：'+SET.name,'方式：'+modeText,key+'：'+scope,k&&'內容：'+$('kind').selectedOptions[0].textContent,p&&'詞性：'+p,...(o.extra||[])].filter(Boolean).join('　｜　')}
 let LISTEN=false,TARGET=Infinity,lcdT=null,lst=null,spkTok=0;
 let GR=[],GRq=[],GRtotal=0,posMode=false,RETEST=null,curRT=null,NOREP=false,BYG=false,lastWrong=[];
 $('start').onclick=()=>{
  if(!SET)return;
  const mode=$('mode').value,gs=[...document.querySelectorAll('#cats input:checked')].map(c=>+c.value),k=$('kind').value,p=$('pos').value;
- const rt=RETEST;RETEST=null;curRT=rt;NOREP=!!rt||!!SET.pool;BYG=!!SET.byGroup&&!rt&&mode!=='listen';LISTEN=mode==='listen';clearInterval(lcdT);
+ homeTab='v';const rt=RETEST;RETEST=null;curRT=rt;NOREP=!!rt||!!SET.pool;BYG=!!SET.byGroup&&!rt&&mode!=='listen';LISTEN=mode==='listen';clearInterval(lcdT);
  const sg=(SET.byGroup||SET.pool)?SET.G:SET.G.filter((g,i)=>gs.includes(i)),fl=w=>(!k||w[4]===k)&&(!p||w[2].split('/').includes(p));
  words=sg.flatMap(g=>g.items).filter(fl);posMode=mode==='pos';
  const lab=SET.groupLabel||'類別';
@@ -258,6 +330,9 @@ $('start').onclick=()=>{
  }else if(words.length<5){$('msg').textContent='符合條件的單字需 5 個以上，請多選幾個'+lab+'或放寬篩選。';return}
  if(NOREP){const se=new Set(),sz=new Set();words=words.filter(w=>{const k1=w[0].toLowerCase();if(se.has(k1)||sz.has(w[1]))return false;se.add(k1);sz.add(w[1]);return true})}
  {const qc=$('qc').value;TARGET=BYG?Infinity:qc==='all'?words.length:(+qc||Infinity)}
+ {const mt=$('mode').selectedOptions[0].textContent;
+  const line=infoLine(mt+(rt?'（只測錯題）':''),{rt,byg:BYG,gs,n:words.length,groups:GRtotal,extra:[BYG?null:'題數：'+(TARGET<Infinity?TARGET+' 題':'不限'),(mode==='mem'||mode==='listen')?null:'時間：'+$('t').selectedOptions[0].textContent,mode==='mem'?'記憶時間：'+$('sec').value+' 秒':null]});
+  $('qinfo').textContent=line;$('rinfo').textContent=line}
  T=mode==='z2e'?1:0;B=1-T;MEM=mode==='mem';clearInterval(memT);$('memmsg').textContent='';
  $('qhint').textContent=LISTEN?'聽單字發音，從右邊選出正確的中文意思；選完會顯示英文單字讓你驗證。':MEM?'先記住每張英文卡下方的中文答案；時間到後卡片會全部打亂，再把中文拖回正確的英文卡下方。按「結束測驗」可隨時結束。':posMode?'把屬於該單字的詞性拖進它下方的空格（可複選；點已放入的詞性可移除；手機可先點詞性卡再點空格）。完成後按「確認答案」。':T?'將下方英文拖曳到對應中文卡下方（手機可先點英文卡、再點空格）。點已放入的卡片可退回。':'將下方中文翻譯拖曳到對應英文卡下方（手機可先點中文卡、再點空格）。點已放入的卡片可退回。';
  ['en','pool','poolLab'].forEach(x=>$(x).classList.toggle('hide',posMode||LISTEN));$('posbox').classList.toggle('hide',!posMode);$('listenbox').classList.toggle('hide',!LISTEN);
@@ -457,16 +532,106 @@ $('pok').onclick=()=>{
  const gen=asked,wrong=log.slice(-round.length).some(x=>!x.ok);
  setTimeout(()=>{if(!$('quiz').classList.contains('hide')&&gen===asked&&posMode)nextPosRound()},wrong?3500:2000)};
 $('stop').onclick=finish;
+// ===== 選擇題測驗 =====
+let M=null;
+const LET=['A','B','C','D','E','F'];
+$('tabV').onclick=()=>{homeTab='v';show('setup')};
+$('tabM').onclick=()=>{homeTab='mcq';show('mcqSetup')};
+const mSet=()=>MCQ_SETS[+$('mset').value];
+function initMcq(){
+ if(!MCQ_SETS.length){$('mset').innerHTML='<option>（沒有選擇題題庫）</option>';return}
+ $('mset').innerHTML=MCQ_SETS.map((s,i)=>`<option value="${i}"${s.questions.length?'':' disabled'}>${esc(s.name)}（${s.questions.length?s.questions.length+' 題':'尚無題目'}）</option>`).join('');
+ const first=MCQ_SETS.findIndex(s=>s.questions.length);if(first>=0)$('mset').value=first;
+ $('mset').onchange=()=>drawMF(0);drawMF(0)}
+const mGroup=k=>[...document.querySelectorAll('#mfilters .mf')].find(e=>e.dataset.key===k);
+const mSel=k=>[...mGroup(k).querySelectorAll('input:checked')].map(c=>c.value);
+function drawMF(from){
+ const s=mSet();if(!s)return;const keys=s.filters||[];
+ if(from===0)$('mfilters').innerHTML=keys.map(k=>`<div class="mf" data-key="${esc(k)}"></div>`).join('');
+ keys.forEach((k,idx)=>{if(idx<from)return;
+  let qs=s.questions;for(let j=0;j<idx;j++){const sel=mSel(keys[j]);qs=qs.filter(q=>sel.includes(q.f[keys[j]]))}
+  const cnt=new Map();qs.forEach(q=>cnt.set(q.f[k],(cnt.get(q.f[k])||0)+1));
+  mGroup(k).innerHTML=`<div class="bar" style="margin-top:10px"><span>${esc(k)}</span><span><button class="sm" data-a="all">全選</button> <button class="sm" data-a="none">清除</button></span></div><div class="cats">${[...cnt].map(([v,n])=>`<label><input type="checkbox" value="${esc(v)}" checked>${esc(v)}（${n}）</label>`).join('')}</div>`})}
+$('mfilters').addEventListener('change',e=>{const g=e.target.closest('.mf');if(!g)return;drawMF((mSet().filters||[]).indexOf(g.dataset.key)+1)});
+$('mfilters').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b)return;const g=b.closest('.mf');
+ g.querySelectorAll('input').forEach(c=>c.checked=b.dataset.a==='all');drawMF((mSet().filters||[]).indexOf(g.dataset.key)+1)});
+const mPool=()=>{const s=mSet();return s.questions.filter(q=>(s.filters||[]).every(k=>mSel(k).includes(q.f[k])))};
+function mkList(pool,target){const out=[];let q=[];
+ while(out.length<target){if(!q.length){q=shuf(pool);if(out.length&&q.length>1&&q[q.length-1]===out[out.length-1])q.unshift(q.pop())}out.push(q.pop())}
+ return out}
+$('mstart').onclick=()=>{
+ const s=mSet();if(!s||!s.questions.length){$('mmsg').textContent='這個題庫目前沒有題目。';return}
+ const pool=mPool();if(!pool.length){$('mmsg').textContent='請至少選擇一個範圍。';return}
+ const qc=$('mqc').value,target=qc==='all'?pool.length:+qc,time=+$('mtime').value,total=+$('mtotal').value;
+ const parts=(s.filters||[]).map(k=>{const sel=mSel(k),all=mGroup(k).querySelectorAll('input').length;return k+'：'+(sel.length===all?'全部':sel.length<=3?sel.join('、'):sel.slice(0,2).join('、')+' 等 '+sel.length+' 個')});
+ const info=['題庫：'+s.name,...parts,'題數：'+(qc==='all'?'全部（'+pool.length+'）':target+' 題'),'考試時間：'+(total?total+' 分鐘':'不限'),'每題時間：'+(time?time+' 秒':'不限')].join('　｜　');
+ $('mmsg').textContent='';runMcq({s,pool,target,time,total,info})};
+function runMcq(c){
+ if(M){clearInterval(M.t);clearTimeout(M.autoT);clearInterval(M.tt)}homeTab='mcq';
+ M={c,list:mkList(c.pool,c.target),i:-1,log:[],t:null,tt:null,autoT:null,cur:null,left:0,t0:Date.now(),tleft:(c.total||0)*60};
+ const fmt=s=>String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+ if(M.tleft){$('mtotalT').textContent=fmt(M.tleft);M.tt=setInterval(()=>{M.tleft--;$('mtotalT').textContent=fmt(Math.max(M.tleft,0));$('mtotalT').style.color=M.tleft<=30?'var(--no)':'';if(M.tleft<=0){clearInterval(M.tt);finishM()}},1000)}else{$('mtotalT').textContent='不限';$('mtotalT').style.color=''}
+ $('minfo').textContent=c.info;$('mrinfo').textContent=c.info;show('mcqQuiz');nextM()}
+function mTimerTxt(){$('mtimer').textContent=M.left+' 秒';$('mtimer').classList.toggle('low',M.left<=3)}
+function nextM(){
+ clearInterval(M.t);clearTimeout(M.autoT);M.i++;
+ if(M.i>=M.list.length){finishM();return}
+ const q=M.list[M.i];M.cur={q,done:false,exp:false};
+ $('mprog').textContent='第 '+(M.i+1)+' / '+M.list.length+' 題';$('mref').textContent=q.ref||'';
+ $('mq').textContent=q.q;
+ $('mopts').innerHTML=q.o.map((o,i)=>`<button class="mopt" data-k="${LET[i]}">${esc(o)}</button>`).join('');
+ $('mfb').textContent='';$('mauto').textContent='';$('mexp').classList.add('hide');$('mexp').textContent=q.e||'（這題沒有詳解）';$('mexpBtn').textContent='📖 詳解';
+ $('mnext').textContent=M.i===M.list.length-1?'看結果':'下一題 ▶';
+ if(M.c.time){M.left=M.c.time;mTimerTxt();M.t=setInterval(()=>{M.left--;if(M.left<=0){clearInterval(M.t);mTimeout()}else mTimerTxt()},1000)}
+ else{$('mtimer').textContent='不限時間';$('mtimer').classList.remove('low')}}
+function mReveal(chosen,status){
+ const cur=M.cur,q=cur.q;cur.done=true;clearInterval(M.t);
+ document.querySelectorAll('.mopt').forEach(b=>{b.disabled=true;if(b.dataset.k===q.a)b.classList.add('ok');else if(b.dataset.k===chosen)b.classList.add('no')});
+ M.log.push({q,chosen,ok:status==='ok',status});
+ $('mfb').textContent=status==='ok'?'✔ 答對了':status==='timeout'?'⏰ 時間到，正確答案是 ('+q.a+')':'✘ 答錯了，正確答案是 ('+q.a+')';
+ $('mfb').style.color=status==='ok'?'var(--ok)':'var(--no)';
+ if(M.c.time&&!cur.exp){let s=3;const gen=M.i;const say=()=>$('mauto').textContent=s+' 秒後自動下一題（按「詳解」可暫停）';say();
+  const tick=()=>{if(M.i!==gen||cur.exp)return;if(--s<=0){nextM()}else{say();M.autoT=setTimeout(tick,1000)}};M.autoT=setTimeout(tick,1000)}}
+function mTimeout(){if(M.cur&&!M.cur.done)mReveal(null,'timeout')}
+$('mopts').addEventListener('click',e=>{const b=e.target.closest('.mopt');if(!b||!M||!M.cur||M.cur.done)return;mReveal(b.dataset.k,b.dataset.k===M.cur.q.a?'ok':'wrong')});
+$('mnext').onclick=()=>{if(!M||!M.cur)return;if(!M.cur.done){M.log.push({q:M.cur.q,chosen:null,ok:false,status:'skip'});M.cur.done=true}nextM()};
+$('mexpBtn').onclick=()=>{if(!M||!M.cur)return;const c=M.cur;c.exp=!c.exp;$('mexp').classList.toggle('hide',!c.exp);$('mexpBtn').textContent=c.exp?'📖 收起詳解':'📖 詳解';
+ if(c.exp){clearTimeout(M.autoT);$('mauto').textContent='';if(!c.done){clearInterval(M.t);$('mtimer').textContent='已暫停'}}};
+$('mstop').onclick=finishM;
+document.addEventListener('keydown',e=>{if($('mcqQuiz').classList.contains('hide')||!M||!M.cur)return;
+ const k=e.key.toUpperCase(),i='1234'.indexOf(k);const L=i>=0?LET[i]:k;
+ if(['A','B','C','D'].includes(L)){const b=[...document.querySelectorAll('.mopt')].find(x=>x.dataset.k===L);if(b&&!M.cur.done)b.click()}
+ else if(e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();$('mnext').click()}});
+function finishM(){
+ if(!M||!$('mcqResult').classList.contains('hide'))return;
+ clearInterval(M.t);clearInterval(M.tt);clearTimeout(M.autoT);show('mcqResult');
+ const total=M.log.length,ok=M.log.filter(x=>x.ok).length,skip=M.log.filter(x=>x.status==='skip'||x.status==='timeout').length;
+ $('mstats').innerHTML=`<div class="stat"><b>${total}</b>作答題數</div><div class="stat"><b style="color:var(--ok)">${ok}</b>答對</div><div class="stat"><b style="color:var(--no)">${total-ok}</b>答錯</div><div class="stat"><b>${skip}</b>逾時／略過</div><div class="stat"><b>${total?Math.round(ok/total*100):0}%</b>正確率</div><div class="stat"><b>${String((Date.now()-M.t0)/60000|0).padStart(2,'0')}:${String(((Date.now()-M.t0)/1000|0)%60).padStart(2,'0')}</b>用時</div>${M.list.length>total?`<div class="stat"><b>${M.list.length-total}</b>未作答</div>`:''}`;
+ const sw=new Set();M.wrong=M.log.filter(x=>!x.ok&&x.q&&!sw.has(x.q.id)&&sw.add(x.q.id)).map(x=>x.q);
+ $('mwrongBtn').classList.toggle('hide',!M.wrong.length);$('mwrongBtn').textContent='只測錯的題目（'+M.wrong.length+'）';
+ drawMList()}
+function drawMList(){
+ const only=$('monlyW').checked;
+ $('mlist').innerHTML=M.log.map((x,i)=>[x,i]).filter(([x])=>!only||!x.ok).map(([x,i])=>{const q=x.q;
+  const lab=x.status==='ok'?'<span class="mbadge ok">✔ 答對</span>':x.status==='timeout'?'<span class="mbadge no">⏰ 逾時</span>':x.status==='skip'?'<span class="mbadge no">略過</span>':'<span class="mbadge no">✘ 答錯</span>';
+  const opts=q.o.map((o,k)=>{const l=LET[k];const cls=l===q.a?'ok':l===x.chosen?'no':'';return `<div class="mo ${cls}">${l===q.a?'✔ ':l===x.chosen?'✘ ':''}${esc(o)}</div>`}).join('');
+  return `<div class="mres"><div class="hint">${i+1}. ${esc(q.ref||'')}</div><div>${lab}</div><div class="mq" style="font-size:16px">${esc(q.q)}</div>${opts}<div class="hint" style="margin-top:8px">📖 詳解（中文翻譯）</div><div class="mexp">${esc(q.e||'（這題沒有詳解）')}</div></div>`}).join('')||'<p class="hint">沒有資料</p>'}
+$('mlist').addEventListener('click',e=>{const b=e.target.closest('button[data-ei]');if(!b)return;const x=$('mx'+b.dataset.ei);x.classList.toggle('hide');b.textContent=x.classList.contains('hide')?'📖 詳解':'📖 收起詳解'});
+$('monlyW').onchange=drawMList;
+$('magain').onclick=()=>runMcq(M.c);
+$('mwrongBtn').onclick=()=>{if(!M.wrong.length)return;const c=M.c;runMcq({s:c.s,pool:M.wrong.slice(),target:M.wrong.length,time:c.time,info:c.info+'（只測錯題）'})};
+$('mback').onclick=()=>{homeTab='mcq';show('mcqSetup')};
 $('home').onclick=()=>{
- if(!$('quiz').classList.contains('hide')&&!confirm('要離開並放棄目前的測驗嗎？'))return;
+ if((!$('quiz').classList.contains('hide')||!$('mcqQuiz').classList.contains('hide'))&&!confirm('要離開並放棄目前的測驗嗎？'))return;
+ if(M){clearInterval(M.t);clearTimeout(M.autoT);clearInterval(M.tt)}
  clearInterval(memT);clearInterval(lcdT);spkTok++;if(tm){clearInterval(tm);tm=null}
  if('speechSynthesis' in window)speechSynthesis.cancel();
  $('quiz').classList.remove('shuf','flip');asked=-1;locked=true;
- show('setup');window.scrollTo(0,0)};
+ show(homeTab==='mcq'?'mcqSetup':'setup');window.scrollTo(0,0)};
 // ===== 練習模式（不計時、不測驗）=====
 let PP=[],pg=0,zFront=false;
 $('prac').onclick=()=>{
- if(!SET)return;LISTEN=false;
+ if(!SET)return;LISTEN=false;homeTab='v';
  const mode=$('mode').value,gs=[...document.querySelectorAll('#cats input:checked')].map(c=>+c.value),k=$('kind').value,p=$('pos').value;
  const sg=(SET.byGroup||SET.pool)?SET.G:SET.G.filter((g,i)=>gs.includes(i)),fl=w=>(!k||w[4]===k)&&(!p||w[2].split('/').includes(p));
  const rnd=$('pord').value==='rnd';zFront=mode==='z2e';
@@ -482,7 +647,7 @@ $('prac').onclick=()=>{
   for(let i=0;i<ws.length;i+=per)PP.push(ws.slice(i,i+per));
  }
  if(!PP.length){$('msg').textContent='沒有符合條件的單字，請調整選擇。';return}
- pg=0;show('practice');drawPrac()};
+ pg=0;$('pinfo').textContent=infoLine('練習'+(zFront?'（中文在前）':mode==='pos'?'（詞性）':''),{byg:!!SET.byGroup,gs,groups:PP.length,extra:['順序：'+(rnd?'隨機':'依序')]});show('practice');drawPrac()};
 function drawPrac(){
  const it=PP[pg],hp=it.some(w=>w[2]);
  $('pprog').textContent='練習 · 第 '+(pg+1)+' / '+PP.length+' '+(SET.byGroup?'組':'頁');
