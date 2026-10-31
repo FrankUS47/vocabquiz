@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>單字配對測驗</title>
+<title>TOEIC 單字配對測驗</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--tx:#1f2430;--sub:#6b7280;--bd:#d5d9e3;--pri:#3b6fe0;--ok:#1f9d55;--no:#d93a3a;--sel:#fff3c4;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -22,6 +22,16 @@ select,button,textarea{font:inherit;color:var(--tx);background:var(--card);borde
 button{cursor:pointer}button.pri{background:var(--pri);color:#fff;border-color:var(--pri);padding:8px 22px;font-weight:600}
 button.sm{padding:3px 10px;font-size:13px}
 .hide{display:none!important}
+.lset{display:flex;flex-wrap:wrap;gap:10px 16px;margin-bottom:8px}
+.lwrap{display:grid;grid-template-columns:1fr 1.3fr;gap:16px;align-items:start}
+@media(max-width:640px){.lwrap{grid-template-columns:1fr}}
+.lword{font-size:28px;font-weight:700;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--bd);border-radius:12px;padding:10px;text-align:center;word-break:break-word}
+.lword.show{border-style:solid;border-color:var(--pri)}
+#lopts{display:grid;gap:8px}#lopts.many{grid-template-columns:1fr 1fr}
+.lopt{padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);text-align:left;cursor:pointer;font-size:16px;color:var(--tx)}
+.lopt.ok{border:2px solid var(--ok);background:rgba(31,157,85,.18)}.lopt.no{border:2px solid var(--no);background:rgba(217,58,58,.18)}
+.lopt:disabled{cursor:default;opacity:1}
+.lsp{border:none;background:transparent;cursor:pointer;font-size:20px}
 .shuf .en,.shuf .zh{color:transparent!important;background:repeating-linear-gradient(45deg,#3b6fe0 0 6px,#2a56b8 6px 12px)!important;border-color:#fff!important;animation:shk .45s infinite;user-select:none}
 .shuf .col:nth-child(2n) .en,.shuf #pool .zh:nth-child(2n),.shuf .slot .zh{animation-delay:-.22s}
 .shuf .spk{visibility:hidden}
@@ -79,11 +89,12 @@ textarea{width:100%;min-height:110px}
   <div class="cats" id="cats"></div></div>
   <div class="row">
    <label id="gnL" class="hide">測驗組數 <select id="gn"><option value="5">5 組</option><option value="10" selected>10 組</option><option value="20">20 組</option><option value="50">50 組</option><option value="0">全部</option></select></label>
+   <label id="qcL">測驗題數 <select id="qc"><option value="0">不限（看時間）</option><option value="10">10 題</option><option value="20">20 題</option><option value="30">30 題</option><option value="50">50 題</option><option value="all">全部</option></select></label>
    <label id="nL">每頁題數 <select id="n"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></label>
    <label id="secL" class="hide">記憶秒數 <select id="sec"><option value="1">1 秒</option><option value="2">2 秒</option><option value="3">3 秒</option><option value="4">4 秒</option><option value="5" selected>5 秒</option><option value="6">6 秒</option><option value="7">7 秒</option><option value="8">8 秒</option><option value="9">9 秒</option><option value="10">10 秒</option></select></label>
    <label id="tL">測驗時間 <select id="t"><option value="60">1 分鐘</option><option value="180">3 分鐘</option><option value="300" selected>5 分鐘</option><option value="600">10 分鐘</option><option value="900">15 分鐘</option></select></label>
-   <label>方式 <select id="mode"><option value="e2z">英翻中</option><option value="z2e">中翻英</option><option value="pos">詞性測驗</option><option value="mem">記憶測驗</option></select></label>
-   <label>發音 <select id="acc"><option value="en-US">美式</option><option value="en-GB">英式</option></select></label>
+   <label>方式 <select id="mode"><option value="e2z">英翻中</option><option value="z2e">中翻英</option><option value="pos">詞性測驗</option><option value="mem">記憶測驗</option><option value="listen">聽力測驗</option></select></label>
+   <label>發音 <select id="acc"><option value="en-US">美式</option><option value="en-GB">英式</option><option value="en-AU">澳洲</option><option value="en-CA">加拿大</option></select></label>
    <span class="hint" id="voiceInfo"></span>
    <button class="pri" id="start">開始測試</button>
    <label>練習順序 <select id="pord"><option value="seq">依序</option><option value="rnd">隨機</option></select></label>
@@ -131,6 +142,25 @@ quiet|安靜的|adj.
    <div id="tray"></div>
    <button class="pri" id="pok">確認答案</button>
   </div>
+  <div id="listenbox" class="hide">
+   <div class="lset">
+    <label>發音 <select id="lacc"><option value="en-US">美國</option><option value="en-GB">英國</option><option value="en-AU">澳洲</option><option value="en-CA">加拿大</option></select></label>
+    <label>速度 <select id="lrate"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label>
+    <label>中文選項 <select id="lchoices"><option value="4" selected>4 個</option><option value="5">5 個</option><option value="10">10 個</option></select></label>
+    <label>發音次數 <select id="lrep"><option value="1" selected>1 次</option><option value="2">2 次</option><option value="3">3 次</option></select></label>
+    <label>答案顯示後 <select id="lnext"><option value="3" selected>3 秒換題</option><option value="5">5 秒換題</option><option value="10">10 秒換題</option><option value="0">手動換題</option></select></label>
+   </div>
+   <div class="hint" id="lvoice"></div>
+   <div id="lstartWrap" style="text-align:center;padding:24px"><button class="pri" id="lstart" style="font-size:18px;padding:12px 32px">▶ 開始聽力測驗</button><p class="hint">先在上面調整設定（測驗中也可以隨時更改），再按開始。</p></div>
+   <div id="larea" class="hide lwrap">
+    <div class="lleft">
+     <div id="lword" class="lword">？</div>
+     <div class="row" style="margin-top:10px"><button id="lreplay">🔊 再發音一次</button><button class="pri" id="lnextBtn" disabled>下一題 ▶</button></div>
+     <div class="hint" id="lcd"></div>
+    </div>
+    <div id="lopts"></div>
+   </div>
+  </div>
  </div>
 </div>
 
@@ -174,7 +204,7 @@ function loadAll(){
  // 先找 data 資料夾，找不到就找與本檔同一層的資料夾
  loadJS(['data/index.js','index.js'],()=>{
   const listed=typeof VOCAB_FILES!=='undefined'?VOCAB_FILES:[];
-  const files=[...listed,...['similar.js','toeic-review.js'].filter(x=>!listed.includes(x))];let i=0;
+  const files=[...listed,...['similar.js','toeic-review.js','law.js'].filter(x=>!listed.includes(x))];let i=0;
   const next=()=>{if(i>=files.length){init();return}
    const f=files[i++];loadJS(['data/'+f,f],next,()=>{if(listed.includes(f))err('找不到題庫檔 '+f+'。');next()})};
   next()},()=>{err('找不到 index.js。請把 data 資料夾（內含 index.js、toeic.js…）放在 vocab-quiz.html 旁邊，或把這些 .js 檔直接放在同一個資料夾。')})}
@@ -197,18 +227,21 @@ function drawSet(){
  const po=$('mode').querySelector('option[value=pos]');po.disabled=!poss.length;
  if(po.disabled&&$('mode').value==='pos')$('mode').value='e2z';
  modeUI();$('msg').textContent='';}
-function modeUI(){const bg=!!(SET&&SET.byGroup),pl=!!(SET&&SET.pool),m=$('mode').value;$('nL').classList.toggle('hide',bg||m==='pos');$('tL').classList.toggle('hide',m==='mem');$('secL').classList.toggle('hide',m!=='mem');$('gnL').classList.toggle('hide',!bg);$('catBox').classList.toggle('hide',bg||pl)}
+function modeUI(){const bg=!!(SET&&SET.byGroup),pl=!!(SET&&SET.pool),m=$('mode').value,L=m==='listen';
+ $('nL').classList.toggle('hide',bg||m==='pos'||L);$('tL').classList.toggle('hide',m==='mem'||L);$('secL').classList.toggle('hide',m!=='mem');
+ $('gnL').classList.toggle('hide',!bg||L);$('catBox').classList.toggle('hide',bg||pl);$('qcL').classList.toggle('hide',bg&&!L)}
 $('mode').onchange=modeUI;
 loadAll();
 $('all').onclick=()=>document.querySelectorAll('#cats input').forEach(c=>c.checked=true);
 $('none').onclick=()=>document.querySelectorAll('#cats input').forEach(c=>c.checked=false);
 
 let T=0,B=1,words,queue,round,where,sel,locked,left,tm,log,perPage,asked;
+let LISTEN=false,TARGET=Infinity,lcdT=null,lst=null,spkTok=0;
 let GR=[],GRq=[],GRtotal=0,posMode=false,RETEST=null,curRT=null,NOREP=false,BYG=false,lastWrong=[];
 $('start').onclick=()=>{
  if(!SET)return;
  const mode=$('mode').value,gs=[...document.querySelectorAll('#cats input:checked')].map(c=>+c.value),k=$('kind').value,p=$('pos').value;
- const rt=RETEST;RETEST=null;curRT=rt;NOREP=!!rt||!!SET.pool;BYG=!!SET.byGroup&&!rt;
+ const rt=RETEST;RETEST=null;curRT=rt;NOREP=!!rt||!!SET.pool;BYG=!!SET.byGroup&&!rt&&mode!=='listen';LISTEN=mode==='listen';clearInterval(lcdT);
  const sg=(SET.byGroup||SET.pool)?SET.G:SET.G.filter((g,i)=>gs.includes(i)),fl=w=>(!k||w[4]===k)&&(!p||w[2].split('/').includes(p));
  words=sg.flatMap(g=>g.items).filter(fl);posMode=mode==='pos';
  const lab=SET.groupLabel||'類別';
@@ -224,26 +257,28 @@ $('start').onclick=()=>{
   GRtotal=+$('gn').value||GR.length;GRtotal=Math.min(GRtotal,GR.length);GRq=shuf(GR).slice(0,GRtotal);
  }else if(words.length<5){$('msg').textContent='符合條件的單字需 5 個以上，請多選幾個'+lab+'或放寬篩選。';return}
  if(NOREP){const se=new Set(),sz=new Set();words=words.filter(w=>{const k1=w[0].toLowerCase();if(se.has(k1)||sz.has(w[1]))return false;se.add(k1);sz.add(w[1]);return true})}
+ {const qc=$('qc').value;TARGET=BYG?Infinity:qc==='all'?words.length:(+qc||Infinity)}
  T=mode==='z2e'?1:0;B=1-T;MEM=mode==='mem';clearInterval(memT);$('memmsg').textContent='';
- $('qhint').textContent=MEM?'先記住每張英文卡下方的中文答案；時間到後卡片會全部打亂，再把中文拖回正確的英文卡下方。按「結束測驗」可隨時結束。':posMode?'把屬於該單字的詞性拖進它下方的空格（可複選；點已放入的詞性可移除；手機可先點詞性卡再點空格）。完成後按「確認答案」。':T?'將下方英文拖曳到對應中文卡下方（手機可先點英文卡、再點空格）。點已放入的卡片可退回。':'將下方中文翻譯拖曳到對應英文卡下方（手機可先點中文卡、再點空格）。點已放入的卡片可退回。';
- ['en','pool','poolLab'].forEach(x=>$(x).classList.toggle('hide',posMode));$('posbox').classList.toggle('hide',!posMode);
+ $('qhint').textContent=LISTEN?'聽單字發音，從右邊選出正確的中文意思；選完會顯示英文單字讓你驗證。':MEM?'先記住每張英文卡下方的中文答案；時間到後卡片會全部打亂，再把中文拖回正確的英文卡下方。按「結束測驗」可隨時結束。':posMode?'把屬於該單字的詞性拖進它下方的空格（可複選；點已放入的詞性可移除；手機可先點詞性卡再點空格）。完成後按「確認答案」。':T?'將下方英文拖曳到對應中文卡下方（手機可先點英文卡、再點空格）。點已放入的卡片可退回。':'將下方中文翻譯拖曳到對應英文卡下方（手機可先點中文卡、再點空格）。點已放入的卡片可退回。';
+ ['en','pool','poolLab'].forEach(x=>$(x).classList.toggle('hide',posMode||LISTEN));$('posbox').classList.toggle('hide',!posMode);$('listenbox').classList.toggle('hide',!LISTEN);
  $('poolLab').textContent=T?'英文卡片':'中文翻譯卡片';perPage=Math.min(+$('n').value,words.length);left=+$('t').value;log=[];queue=NOREP?shuf(words):[];asked=0;
- show('quiz');if(MEM){$('timer').textContent='記憶測驗';$('timer').classList.remove('low')}else{tick();tm=setInterval(tick,1000)}posMode?nextPosRound():nextRound()};
+ show('quiz');if(MEM||LISTEN){$('timer').textContent=MEM?'記憶測驗':'聽力測驗';$('timer').classList.remove('low')}else{tick();tm=setInterval(tick,1000)}LISTEN?initListen():posMode?nextPosRound():nextRound()};
 function tick(){const m=String(left/60|0).padStart(2,'0'),s=String(left%60).padStart(2,'0');
  $('timer').textContent=m+':'+s;$('timer').classList.toggle('low',left<=30);
  if(left--<=0)finish()}
 function nextRound(){
  let items=[];
  if(BYG){if(!GRq.length){finish();return}const cl=GRq.pop();items=shuf(cl).slice(0,8).map(b=>b[Math.random()*b.length|0])}
- else{const seenZh=new Set(),seenEn=new Set();
- let tries=0;while(items.length<perPage&&tries++<words.length*3){
-  if(!queue.length){if(NOREP)break;queue=shuf(words)}
+ else{if(log.length>=TARGET){finish();return}
+ const need=Math.min(perPage,TARGET-log.length),seenZh=new Set(),seenEn=new Set();
+ let tries=0;while(items.length<need&&tries++<words.length*3){
+  if(!queue.length){if(NOREP&&TARGET===Infinity)break;queue=shuf(words)}
   const w=queue.pop();
   if(seenZh.has(w[1])||seenEn.has(w[0]))continue;
   seenZh.add(w[1]);seenEn.add(w[0]);items.push(w)}
  if(NOREP&&!items.length){finish();return}}
  round=items;where=round.map(()=>-1);sel=null;locked=false;asked++;
- $('prog').textContent=BYG?'第 '+asked+' / '+GRtotal+' 組':'第 '+asked+' 頁 · 已完成 '+log.length+' 題'+(NOREP?'（剩 '+queue.length+' 題未出）':'');
+ $('prog').textContent=BYG?'第 '+asked+' / '+GRtotal+' 組':'第 '+asked+' 頁 · 已完成 '+log.length+(TARGET<Infinity?' / '+TARGET:'')+' 題'+(NOREP&&TARGET===Infinity?'（剩 '+queue.length+' 題未出）':'');
  $('quiz').classList.remove('shuf','flip');if(!MEM)$('memmsg').textContent='';
  drawEn();bind();if(MEM)memPhase()}
 function drawEn(){$('en').innerHTML=round.map((w,i)=>`<div class="col"><div class="en${T===0?' say':''}" data-i="${i}">${w[T]}${T===0?spk(i):''}</div><div class="slot" data-s="${i}"></div><div class="fix"></div></div>`).join('')}
@@ -289,26 +324,72 @@ render=function(){
 };
 function spk(i){return `<button class="spk" data-i="${i}" title="發音">🔊</button>`}
 let VOICES=[];
+const LLAB={'en-US':'美式','en-GB':'英式','en-AU':'澳洲','en-CA':'加拿大'};
+const FB={'en-gb':/\b(UK|United Kingdom|British|Great Britain|Daniel|Hazel|George|Serena|Kate|Oliver|Arthur|Martha)\b/i,'en-au':/\b(AU|Australia|Australian|Karen|Catherine|Lee|Gordon)\b/i,'en-ca':/\b(CA|Canada|Canadian|Heather|Linda|Rishi)\b/i};
 function pickVoice(lang){
  const L=lang.toLowerCase(),good=v=>/natural|online|premium|enhanced|google/i.test(v.name)?1:0;
  let c=VOICES.filter(v=>v.lang.replace('_','-').toLowerCase()===L).sort((a,b)=>good(b)-good(a))[0];
- if(!c&&L==='en-gb')c=VOICES.find(v=>/^en/i.test(v.lang)&&/(UK|United Kingdom|British|Great Britain|Daniel|Hazel|George|Serena|Kate|Oliver|Arthur|Martha)/i.test(v.name));
+ if(!c&&FB[L])c=VOICES.find(v=>/^en/i.test(v.lang)&&FB[L].test(v.name));
  return c||null}
+const voiceMsg=lang=>{const v=pickVoice(lang);return v?'使用語音：'+v.name+'（'+v.lang+'）':'⚠ 這台裝置沒有找到'+LLAB[lang]+'語音，會使用預設語音（聽起來可能一樣）'};
 function showVoice(){
  if(!('speechSynthesis' in window)){$('voiceInfo').textContent='⚠ 此瀏覽器不支援發音';return}
- const lang=$('acc').value,v=pickVoice(lang);
- $('voiceInfo').textContent=v?'使用語音：'+v.name+'（'+v.lang+'）':'⚠ 這台裝置沒有找到'+(lang==='en-GB'?'英式':'美式')+'語音，會使用預設語音（聽起來可能一樣）'}
+ $('voiceInfo').textContent=voiceMsg($('acc').value);showLVoice()}
+function showLVoice(){if('speechSynthesis' in window)$('lvoice').textContent=voiceMsg($('lacc').value)}
 function loadVoices(){if('speechSynthesis' in window){VOICES=speechSynthesis.getVoices();showVoice()}}
 if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadVoices;}
-loadVoices();$('acc').onchange=showVoice;
-function speak(t){
- if(!('speechSynthesis' in window)){alert('此瀏覽器不支援語音功能');return}
+loadVoices();$('acc').onchange=showVoice;$('lacc').onchange=showLVoice;
+const curLang=()=>LISTEN?$('lacc').value:$('acc').value,curRate=()=>LISTEN?+$('lrate').value:.9;
+function speakOnce(t,lang,rate,done){
+ if(!('speechSynthesis' in window)){done&&done();return}
  if(!VOICES.length)VOICES=speechSynthesis.getVoices();
- speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(t.replace(/\(.*?\)/g,'').replace(/\//g,', '));
- const lang=$('acc').value,v=pickVoice(lang);u.rate=.9;
+ const v=pickVoice(lang);u.rate=rate;
  if(v){u.voice=v;u.lang=v.lang}else u.lang=lang;
+ if(done)u.onend=u.onerror=()=>done();
  speechSynthesis.speak(u)}
+function speak(t,lang,rate){
+ if(!('speechSynthesis' in window)){alert('此瀏覽器不支援語音功能');return}
+ spkTok++;speechSynthesis.cancel();speakOnce(t,lang||curLang(),rate||curRate())}
+function speakSeq(t,n){
+ if(!('speechSynthesis' in window))return;
+ const tok=++spkTok;speechSynthesis.cancel();let k=0;
+ const go=()=>{if(tok!==spkTok||k>=n)return;k++;speakOnce(t,$('lacc').value,+$('lrate').value,()=>{if(tok===spkTok&&k<n)setTimeout(go,700)})};
+ setTimeout(go,150)}
+// ===== 聽力測驗 =====
+function initListen(){clearInterval(lcdT);lst=null;$('lstartWrap').classList.remove('hide');$('larea').classList.add('hide');$('prog').textContent='';showLVoice()}
+$('lstart').onclick=()=>{$('lstartWrap').classList.add('hide');$('larea').classList.remove('hide');nextListen()};
+function uniqZh(arr,ex){return [...new Map(arr.filter(x=>x[1]!==ex).map(x=>[x[1],x])).values()]}
+function nextListen(){
+ clearInterval(lcdT);
+ if(log.length>=TARGET){finish();return}
+ if(!queue.length){if(NOREP&&TARGET===Infinity){finish();return}queue=shuf(words)}
+ const w=queue.pop();let n=+$('lchoices').value;
+ let pool=uniqZh(words,w[1]);
+ if(pool.length<n-1)pool=uniqZh(SET.G.flatMap(g=>g.items),w[1]);
+ n=Math.min(n,pool.length+1);
+ const opts=shuf([w[1],...shuf(pool).slice(0,n-1).map(x=>x[1])]);
+ lst={w,opts,done:false};asked++;
+ $('prog').textContent='第 '+(log.length+1)+(TARGET<Infinity?' / '+TARGET:'')+' 題';
+ $('lword').textContent='？';$('lword').classList.remove('show');
+ $('lopts').className=opts.length>=8?'many':'';
+ $('lopts').innerHTML=opts.map((z,i)=>`<button class="lopt" data-k="${i}">${z}</button>`).join('');
+ $('lnextBtn').disabled=true;$('lnextBtn').textContent='下一題 ▶';$('lcd').textContent='';
+ speakSeq(w[0],+$('lrep').value)}
+$('lopts').addEventListener('click',e=>{
+ const b=e.target.closest('.lopt');if(!b||!lst||lst.done)return;
+ lst.done=true;const z=lst.opts[+b.dataset.k],w=lst.w,ok=z===w[1];
+ log.push({en:w[0],zh:w[1],ans:z,ok,pos:w[2],sim:w[3],w});
+ document.querySelectorAll('.lopt').forEach((x,i)=>{x.disabled=true;if(lst.opts[i]===w[1])x.classList.add('ok');else if(x===b)x.classList.add('no')});
+ $('lword').innerHTML=`<div>${w[0]} <button class="lsp" title="發音">🔊</button></div><div style="font-size:16px;font-weight:400;margin-top:6px">${w[1]}</div>`;$('lword').classList.add('show');
+ const last=log.length>=TARGET;$('lnextBtn').disabled=false;$('lnextBtn').textContent=last?'看結果':'下一題 ▶';
+ const d=+$('lnext').value;
+ if(d){let s=d;const say=()=>{$('lcd').textContent=s+' 秒後'+(last?'顯示結果':'自動下一題')};say();const gen=asked;
+  lcdT=setInterval(()=>{if(gen!==asked){clearInterval(lcdT);return}if(--s<=0){clearInterval(lcdT);nextListen()}else say()},1000)}
+ else $('lcd').textContent='按「'+(last?'看結果':'下一題')+'」繼續'});
+$('lnextBtn').onclick=()=>{if(lst&&lst.done)nextListen()};
+$('lreplay').onclick=()=>{if(lst)speakSeq(lst.w[0],1)};
+$('lword').addEventListener('click',e=>{if(e.target.closest('.lsp')&&lst)speak(lst.w[0])});
 document.addEventListener('click',e=>{
  if($('quiz').classList.contains('hide')===false){
   const b=e.target.closest('.spk'),c=e.target.closest('.en.say');
@@ -346,7 +427,9 @@ const PB=['n.','v.','adj.','adv.'];let pchosen=[],psel=null,pdrag=null;
 const baseOf=p=>[...new Set(p.split('/').map(x=>x.replace('.','')).map(x=>x==='vt'||x==='vi'?'v':x))].filter(Boolean);
 function nextPosRound(){
  const items=[];let tries=0;
- while(items.length<5&&tries++<words.length*3){if(!queue.length){if(NOREP)break;queue=shuf(words)}const w=queue.pop();if(!items.some(x=>x[0]===w[0]))items.push(w)}
+ if(log.length>=TARGET){finish();return}
+ const need=Math.min(5,TARGET-log.length);
+ while(items.length<need&&tries++<words.length*3){if(!queue.length){if(NOREP&&TARGET===Infinity)break;queue=shuf(words)}const w=queue.pop();if(!items.some(x=>x[0]===w[0]))items.push(w)}
  if(NOREP&&!items.length){finish();return}
  round=items;pchosen=round.map(()=>[]);psel=null;locked=false;asked++;
  $('prog').textContent='第 '+asked+' 頁 · 已完成 '+log.length+' 題';drawPos()}
@@ -376,14 +459,14 @@ $('pok').onclick=()=>{
 $('stop').onclick=finish;
 $('home').onclick=()=>{
  if(!$('quiz').classList.contains('hide')&&!confirm('要離開並放棄目前的測驗嗎？'))return;
- clearInterval(memT);if(tm){clearInterval(tm);tm=null}
+ clearInterval(memT);clearInterval(lcdT);spkTok++;if(tm){clearInterval(tm);tm=null}
  if('speechSynthesis' in window)speechSynthesis.cancel();
  $('quiz').classList.remove('shuf','flip');asked=-1;locked=true;
  show('setup');window.scrollTo(0,0)};
 // ===== 練習模式（不計時、不測驗）=====
 let PP=[],pg=0,zFront=false;
 $('prac').onclick=()=>{
- if(!SET)return;
+ if(!SET)return;LISTEN=false;
  const mode=$('mode').value,gs=[...document.querySelectorAll('#cats input:checked')].map(c=>+c.value),k=$('kind').value,p=$('pos').value;
  const sg=(SET.byGroup||SET.pool)?SET.G:SET.G.filter((g,i)=>gs.includes(i)),fl=w=>(!k||w[4]===k)&&(!p||w[2].split('/').includes(p));
  const rnd=$('pord').value==='rnd';zFront=mode==='z2e';
@@ -414,7 +497,7 @@ $('pback').onclick=()=>show('setup');
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')pgo(1);if(e.key==='ArrowLeft')pgo(-1)});
 document.addEventListener('click',e=>{const b=e.target.closest('.spk[data-pi]');if(b&&!$('practice').classList.contains('hide'))speak(PP[pg][+b.dataset.pi][0])});
 function finish(){
- clearInterval(memT);$('quiz').classList.remove('shuf','flip');if(tm){clearInterval(tm);tm=null}
+ clearInterval(lcdT);spkTok++;if('speechSynthesis' in window)speechSynthesis.cancel();clearInterval(memT);$('quiz').classList.remove('shuf','flip');if(tm){clearInterval(tm);tm=null}
  if($('result').classList.contains('hide')===false)return;
  asked=-1;show('result');
  const wrong=log.filter(x=>!x.ok).length,total=log.length;
@@ -425,9 +508,10 @@ function finish(){
 function drawRows(){
  const only=$('onlyW').checked,hp=log.some(x=>x.pos),hs=log.some(x=>x.sim);
  $('thead').innerHTML='<tr><th>英文</th><th>正確中文</th>'+(hp?'<th>詞性</th>':'')+(hs?'<th>相似字</th>':'')+'<th>你的答案</th><th></th></tr>';
- const rows=log.filter(x=>!only||!x.ok).map(x=>`<tr><td>${x.en}</td><td class="r">${x.zh}</td>${hp?`<td>${x.pos}</td>`:''}${hs?`<td>${x.sim}</td>`:''}<td class="${x.ok?'r':'w'}">${x.ans}</td><td>${x.ok?'✓':'✗'}</td></tr>`);
+ const rows=log.map((x,i)=>[x,i]).filter(([x])=>!only||!x.ok).map(([x,i])=>`<tr><td>${x.en} <button class="spk" data-ri="${i}" title="發音">🔊</button></td><td class="r">${x.zh}</td>${hp?`<td>${x.pos}</td>`:''}${hs?`<td>${x.sim}</td>`:''}<td class="${x.ok?'r':'w'}">${x.ans}</td><td>${x.ok?'✓':'✗'}</td></tr>`);
  $('rows').innerHTML=rows.join('')||'<tr><td colspan="6">沒有資料</td></tr>'}
 $('onlyW').onchange=drawRows;
+document.addEventListener('click',e=>{const b=e.target.closest('.spk[data-ri]');if(b&&!$('result').classList.contains('hide'))speak(log[+b.dataset.ri].en)});
 $('again').onclick=()=>{RETEST=curRT;$('start').click()};
 $('wrongBtn').onclick=()=>{if(lastWrong.length){RETEST=lastWrong.slice();$('start').click()}};
 $('back').onclick=()=>show('setup');

@@ -7,4 +7,12 @@ const VOCAB_FILES = [
   "junior.js",    // 國中單字（第1~12課）
   "senior.js",    // 高中單字（Level 1~6）
   "similar.js",   // 相似單字（一頁一組）
+  "law.js",       // 法律單字（11 個科目）
+];
+
+// 選擇題題庫檔（同樣放在 data 資料夾；順序＝選單順序）
+const MCQ_FILES = [
+  "mcq-junior.js",
+  "mcq-senior.js",
+  "mcq-toeic.js",
 ];
